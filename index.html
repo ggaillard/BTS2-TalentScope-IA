@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TalentScope — prototype critique (BTS SIO)</title>
+<style>
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1d2330;--mute:#5f6675;--line:#e3e1da;--acc:#2f5bd3;--acc2:#e8eefc;--warn:#b4441f;--warnbg:#fbeee8;--ok:#1f7a4d;--okbg:#e7f4ec;--r:12px}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{padding:20px 24px 0;max-width:1100px;margin:auto}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px}
+.banner{background:var(--warnbg);border:1px solid #f0cdbd;color:#6d2a12;border-radius:var(--r);padding:10px 14px;font-size:14px}
+nav{display:flex;gap:6px;flex-wrap:wrap;max-width:1100px;margin:16px auto 0;padding:0 24px}
+nav button{border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:999px;cursor:pointer;font:inherit;color:var(--ink)}
+nav button[aria-selected=true]{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{max-width:1100px;margin:auto;padding:16px 24px 60px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card h2{font-size:17px;margin:0 0 8px}.card h3{font-size:15px;margin:14px 0 6px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:780px){.g2,.g3{grid-template-columns:1fr}}
+.btn{border:0;background:var(--acc);color:#fff;padding:9px 16px;border-radius:8px;cursor:pointer;font:inherit}
+.btn.sec{background:var(--acc2);color:var(--acc)}
+.btn:disabled{opacity:.4;cursor:default}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;padding:10px 12px;border-radius:8px;margin:6px 0;cursor:pointer;font:inherit;color:var(--ink)}
+.opt:hover{border-color:var(--acc)}
+.likert{display:flex;gap:6px;flex-wrap:wrap}.likert .opt{width:auto;flex:1;text-align:center;min-width:90px}
+.bar{height:10px;background:#eceae4;border-radius:6px;overflow:hidden}.bar>i{display:block;height:100%;background:var(--acc)}
+.kpi{font-size:28px;font-weight:650}.lab{color:var(--mute);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600;font-size:13px}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;background:#eceae4}
+.tag.a{background:var(--okbg);color:var(--ok)}.tag.b{background:var(--acc2);color:var(--acc)}.tag.c{background:var(--warnbg);color:var(--warn)}
+.alert{background:var(--warnbg);border-left:4px solid var(--warn);padding:10px 12px;border-radius:6px;margin:10px 0}
+.good{background:var(--okbg);border-left:4px solid var(--ok);padding:10px 12px;border-radius:6px;margin:10px 0}
+label.sl{display:flex;align-items:center;gap:10px;margin:6px 0}label.sl input{flex:1}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+.trace{max-height:260px;overflow:auto;background:#faf9f6;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+.mods{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.mod{flex:1;min-width:110px;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:13px}
+.mod.cur{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc2)}.mod.done{background:var(--okbg)}
+ol.q li{margin:6px 0}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+<h1>TalentScope · prototype critique</h1>
+<p class="sub">Recruter sur « potentiel cognitif, résilience, empathie », puis adapter le parcours par IA (adaptive learning). À manipuler, puis à auditer.</p>
+<div class="banner"><b>Support pédagogique, données 100 % fictives.</b> Ce prototype applique le concept tel qu'il est vendu, pour qu'on puisse le démonter. Il ne doit jamais servir à évaluer ou orienter de vraies personnes : en Europe, ce type de système est classé « à haut risque » par l'AI Act (annexe III, éducation et emploi).</div>
+</header>
+<nav role="tablist">
+<button role="tab" aria-selected="true" data-t="test">1 · Passer le test</button>
+<button role="tab" aria-selected="false" data-t="cohorte">2 · Recrutement de la cohorte</button>
+<button role="tab" aria-selected="false" data-t="adaptive">3 · Adaptive learning</button>
+<button role="tab" aria-selected="false" data-t="audit">4 · Audit</button>
+<button role="tab" aria-selected="false" data-t="debat">5 · Questions pour la classe</button>
+</nav>
+<main>
+
+<!-- 1 TEST -->
+<section id="test" class="on">
+<div class="card" id="testBox"></div>
+</section>
+
+<!-- 2 COHORTE -->
+<section id="cohorte">
+<div class="grid g2">
+<div class="card">
+<h2>Le réglage de l'algorithme</h2>
+<p class="lab">Score global = somme pondérée des trois dimensions. Le score cognitif inclut un bonus de rapidité.</p>
+<label class="sl">Cognitif <input type="range" min="0" max="100" value="50" id="wC"><span id="wCv" class="mono"></span></label>
+<label class="sl">Résilience <input type="range" min="0" max="100" value="25" id="wR"><span id="wRv" class="mono"></span></label>
+<label class="sl">Empathie <input type="range" min="0" max="100" value="25" id="wE"><span id="wEv" class="mono"></span></label>
+<label class="sl">Bonus rapidité <input type="range" min="0" max="40" value="20" id="wS"><span id="wSv" class="mono"></span></label>
+<label class="sl">Places disponibles <input type="range" min="4" max="20" value="10" id="places"><span id="placesV" class="mono"></span></label>
+</div>
+<div class="card">
+<h2>Résultat</h2>
+<div class="grid g3" id="kpis"></div>
+<p class="lab" style="margin-top:10px">Les parcours : <span class="tag a">Accéléré</span> <span class="tag b">Standard</span> <span class="tag c">Non retenu</span></p>
+</div>
+</div>
+<div class="card">
+<h2>Candidats fictifs (24)</h2>
+<table id="tab"><thead><tr><th>#</th><th>Candidat</th><th>Cognitif</th><th>Résilience</th><th>Empathie</th><th>Temps moyen / item</th><th>Score</th><th>Décision</th></tr></thead><tbody></tbody></table>
+</div>
+</section>
+
+<!-- 3 ADAPTIVE -->
+<section id="adaptive">
+<div class="card">
+<h2>Simulateur d'adaptive learning</h2>
+<p class="lab">Chaque candidat retenu suit 6 modules. Après chaque exercice, l'algorithme met à jour une estimation de maîtrise (mise à jour bayésienne simplifiée) : sous 0,6 il propose une remédiation, au-delà de 0,85 il passe au module suivant.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<select id="who"></select>
+<button class="btn" id="step">Exercice suivant</button>
+<button class="btn sec" id="run">Simuler 10 exercices</button>
+<button class="btn sec" id="reset">Recommencer</button>
+</div>
+<div class="mods" id="mods"></div>
+<div class="grid g2">
+<div><h3>Ce que voit l'algorithme</h3><div id="est"></div></div>
+<div><h3>Journal des décisions</h3><div class="trace mono" id="trace"></div></div>
+</div>
+<div class="alert" style="margin-top:14px"><b>À remarquer :</b> le point de départ de l'estimation vient du score de recrutement. Un candidat mal classé démarre bas, reçoit plus de remédiation et avance moins vite — l'erreur du tri initial se prolonge dans la formation.</div>
+</div>
+</section>
+
+<!-- 4 AUDIT -->
+<section id="audit">
+<div class="card">
+<h2>Test de disparité (règle des quatre cinquièmes)</h2>
+<p>Les 24 candidats fictifs ont un attribut caché : 8 d'entre eux (groupe B) bénéficient d'un <b>aménagement tiers-temps</b> (dyslexie, français langue seconde…). À capacité égale, ils répondent plus lentement. Le bonus de rapidité les pénalise sans que l'algorithme « connaisse » l'aménagement.</p>
+<div id="disp"></div>
+<button class="btn sec" id="fixSpeed">Mettre le bonus rapidité à 0</button>
+</div>
+<div class="grid g2">
+<div class="card">
+<h2>Ce que mesure vraiment le test</h2>
+<ul>
+<li><b>Résilience</b> et <b>empathie</b> sont ici <b>auto-déclarées</b> (échelle de 1 à 5) : on mesure ce que la personne dit d'elle, et ce qu'elle a compris qu'on attendait. Un candidat préparé optimise ses réponses.</li>
+<li>Le score <b>cognitif</b> repose sur trois items : l'erreur de mesure est plus grande que l'écart entre deux candidats voisins du classement.</li>
+<li>Aucun de ces scores n'a été <b>validé</b> contre la réussite réelle en BTS. Sans validation, le classement n'est qu'un ordre.</li>
+</ul>
+</div>
+<div class="card">
+<h2>Cadre juridique (à vérifier avec les textes)</h2>
+<ul>
+<li><b>AI Act, art. 5</b> : la reconnaissance des émotions est interdite dans l'éducation et au travail (en vigueur depuis février 2025).</li>
+<li><b>AI Act, annexe III</b> : sont à haut risque les systèmes qui décident de l'admission, affectent à un parcours, évaluent les acquis ou servent au recrutement. Obligations : gestion des risques, données de qualité, documentation, contrôle humain, transparence.</li>
+<li><b>RGPD, art. 22</b> : pas de décision fondée exclusivement sur un traitement automatisé produisant des effets importants, sauf exceptions encadrées ; analyse d'impact (AIPD) obligatoire pour un profilage de cette nature.</li>
+<li>Tests psychométriques : leur usage et leur interprétation relèvent de professionnels formés (psychologues).</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- 5 DEBAT -->
+<section id="debat">
+<div class="card">
+<h2>Questions pour la classe</h2>
+<ol class="q">
+<li>Passez le test (onglet 1) deux fois : une fois sincèrement, une fois en « candidat parfait ». Quel écart ? Qu'en déduire sur ce qu'il mesure ?</li>
+<li>Onglet 2 : trouvez deux réglages de poids qui changent le statut d'au moins cinq candidats. Qui devrait choisir ces poids, et sur quelle base ?</li>
+<li>Onglet 4 : le groupe B passe-t-il la règle des quatre cinquièmes ? Que se passe-t-il quand on retire le bonus de rapidité ? Pourquoi l'algorithme discrimine-t-il sans connaître l'aménagement ?</li>
+<li>Onglet 3 : comparez un candidat « Accéléré » et un candidat tout juste retenu. Le parcours adapte-t-il au rythme, ou reproduit-il le classement ?</li>
+<li>Classez ce système dans l'AI Act. Quelles obligations ? Quelle partie est purement interdite ?</li>
+<li>Redessinez le dispositif pour qu'il soit légal et utile : que mesurer, qui décide, que voit l'étudiant ? (Indice : partir des compétences du référentiel, pas des traits de personnalité.)</li>
+<li>Rédigez les trois lignes d'information RGPD qu'un candidat devrait lire avant de commencer.</li>
+</ol>
+<p class="lab">Rattachement possible : séances IA BTS2 « Concevoir · Piloter · Mesurer · Sécuriser », bloc 3 cybersécurité (données personnelles), CEJM (droit du numérique).</p>
+</div>
+</section>
+</main>
+
+<script>
+// ---------- utilitaires
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+$$('nav button').forEach(b=>b.onclick=()=>{$$('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));$$('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.t));if(b.dataset.t==='audit')renderAudit();});
+
+// ---------- 1. TEST
+const ITEMS=[
+ {d:'cog',q:'Complétez la suite : 2 · 6 · 12 · 20 · ?',o:['28','30','32','24'],a:1},
+ {d:'cog',q:'Tous les serveurs sont surveillés. Certains serveurs sont des machines virtuelles. Donc…',o:['Toutes les VM sont surveillées','Certaines VM sont surveillées','Aucune VM n\'est surveillée','On ne peut rien conclure'],a:1},
+ {d:'cog',q:'Un script traite 120 lignes en 3 s. Combien de lignes en 45 s au même rythme ?',o:['1 600','1 800','2 400','1 200'],a:1},
+ {d:'res',q:'Après un échec à un examen, je me remets rapidement au travail.',lik:1},
+ {d:'res',q:'Quand un bug résiste depuis une heure, je garde mon calme.',lik:1},
+ {d:'res',q:'Les critiques sur mon travail me découragent longtemps.',lik:1,inv:1},
+ {d:'emp',q:'Un camarade de projet ne rend pas sa partie et paraît épuisé. Vous…',o:['Le signalez au professeur','Lui demandez ce qui se passe et proposez de réorganiser','Faites sa partie sans rien dire','Lui rappelez fermement l\'échéance'],w:[1,4,2,2]},
+ {d:'emp',q:'Je perçois facilement quand quelqu\'un est mal à l\'aise.',lik:1},
+ {d:'emp',q:'Un utilisateur s\'énerve au téléphone contre « votre » application. Vous…',o:['Expliquez que ce n\'est pas votre faute','Reformulez son problème avant de chercher une solution','Raccrochez poliment','Transmettez immédiatement au support N2'],w:[1,4,1,2]}
+];
+let ti=0,ans=[],t0=0;
+function renderTest(){
+ const box=$('#testBox');
+ if(ti===0&&!ans.length){box.innerHTML=`<h2>Test de positionnement « TalentScope »</h2><p>9 questions, environ 2 minutes. Le temps de réponse est mesuré.</p><p class="lab">Vos réponses restent dans cette page et ne sont envoyées nulle part.</p><button class="btn" id="go">Commencer</button>`;$('#go').onclick=()=>{ans=[{}];ans=[];t0=performance.now();ti=0;draw();};return}
+ draw();
+}
+function draw(){
+ const box=$('#testBox');
+ if(ti>=ITEMS.length)return result();
+ const it=ITEMS[ti];
+ let h=`<div class="lab">Question ${ti+1} / ${ITEMS.length} · ${{cog:'Potentiel cognitif',res:'Résilience',emp:'Empathie'}[it.d]}</div><div class="bar" style="margin:6px 0 14px"><i style="width:${ti/ITEMS.length*100}%"></i></div><h2>${it.q}</h2>`;
+ if(it.lik){h+='<div class="likert">'+['Pas du tout','Plutôt non','Neutre','Plutôt oui','Tout à fait'].map((l,i)=>`<button class="opt" data-v="${i+1}">${l}</button>`).join('')+'</div>'}
+ else h+=it.o.map((o,i)=>`<button class="opt" data-v="${i}">${o}</button>`).join('');
+ box.innerHTML=h;
+ $$('#testBox .opt').forEach(b=>b.onclick=()=>{const t=(performance.now()-t0)/1000;t0=performance.now();ans.push({v:+b.dataset.v,t});ti++;draw();});
+}
+function scoreAns(){
+ let cog=0,cogT=0,res=0,emp=0;
+ ITEMS.forEach((it,i)=>{const a=ans[i];
+  if(it.d==='cog'){cog+=a.v===it.a?1:0;cogT+=a.t}
+  if(it.d==='res'){res+=it.inv?6-a.v:a.v}
+  if(it.d==='emp'){emp+=it.lik?a.v:(it.w[a.v]+0)}
+ });
+ const speed=clamp(1-(cogT/3-4)/16,0,1);
+ return{cog:Math.round(cog/3*100),speed,res:Math.round((res-3)/12*100),emp:Math.round((emp-3)/(4+5+4-3)*100),tMoy:cogT/3};
+}
+function result(){
+ const s=scoreAns();const W=weights();
+ const g=globalScore({cog:s.cog,res:s.res,emp:s.emp,speed:s.speed},W);
+ const track=g>=70?['a','Parcours accéléré']:g>=50?['b','Parcours standard']:['c','Non retenu'];
+ $('#testBox').innerHTML=`<h2>Votre profil TalentScope</h2>
+ <div class="grid g3">${[['Potentiel cognitif',s.cog],['Résilience',s.res],['Empathie',s.emp]].map(([l,v])=>`<div><div class="lab">${l}</div><div class="kpi">${v}</div><div class="bar"><i style="width:${v}%"></i></div></div>`).join('')}</div>
+ <p style="margin-top:14px">Temps moyen sur les items cognitifs : <b>${s.tMoy.toFixed(1)} s</b> → bonus rapidité ${Math.round(s.speed*W.s)} pts.<br>Score global : <b>${g}</b> → <span class="tag ${track[0]}">${track[1]}</span></p>
+ <div class="alert"><b>Avant d'y croire :</b> 6 de vos 9 réponses portent sur ce que vous dites de vous-même. Refaites le test en jouant le « candidat parfait » : le score de résilience et d'empathie monte, vos qualités réelles n'ont pas changé. Et si vous avez lu lentement, la rapidité vous a coûté des points sans rapport avec votre raisonnement.</div>
+ <button class="btn sec" id="again">Refaire le test</button>`;
+ $('#again').onclick=()=>{ti=0;ans=[];renderTest()};
+}
+renderTest();
+
+// ---------- 2. COHORTE
+const PRENOMS=['Alix','Bastien','Camille','Dylan','Elsa','Farid','Gaëlle','Hugo','Inès','Jules','Kenza','Léo','Maëlys','Nolan','Océane','Paul','Rayan','Sarah','Théo','Uma','Victor','Wassim','Yanis','Zoé'];
+const R=rng(42);
+const COH=PRENOMS.map((p,i)=>{
+ const ability=clamp(0.25+R()*0.7,0,1);            // capacité réelle (cachée)
+ const B=[1,4,6,10,13,17,19,22].includes(i);       // aménagement tiers-temps (caché)
+ const t=(5+ (1-ability)*7 + R()*3)*(B?1.6:1);      // temps moyen / item
+ const cog=Math.round(clamp(ability*100+(R()-.5)*25,5,100));
+ const res=Math.round(clamp(40+R()*55,0,100));
+ const emp=Math.round(clamp(35+R()*60,0,100));
+ return{id:i+1,nom:p+' '+String.fromCharCode(65+((i*7)%26))+'.',ability,B,t,cog,res,emp,speed:clamp(1-(t-4)/16,0,1)};
+});
+function weights(){return{c:+$('#wC').value,r:+$('#wR').value,e:+$('#wE').value,s:+$('#wS').value}}
+function globalScore(x,W){const sum=W.c+W.r+W.e||1;return Math.round((x.cog*W.c+x.res*W.r+x.emp*W.e)/sum*(100-W.s)/100+x.speed*W.s)}
+function decide(){
+ const W=weights(),N=+$('#places').value;
+ const list=COH.map(c=>({...c,g:globalScore(c,W)})).sort((a,b)=>b.g-a.g);
+ list.forEach((c,i)=>c.dec=i<Math.ceil(N*0.4)?'a':i<N?'b':'c');
+ return list;
+}
+function renderCoh(){
+ const W=weights();['C','R','E','S'].forEach(k=>$('#w'+k+'v').textContent=$('#w'+k).value);$('#placesV').textContent=$('#places').value;
+ const L=decide();
+ $('#tab tbody').innerHTML=L.map((c,i)=>`<tr><td>${i+1}</td><td>${c.nom}</td><td>${c.cog}</td><td>${c.res}</td><td>${c.emp}</td><td>${c.t.toFixed(1)} s</td><td><b>${c.g}</b></td><td><span class="tag ${c.dec}">${{a:'Accéléré',b:'Standard',c:'Non retenu'}[c.dec]}</span></td></tr>`).join('');
+ const ret=L.filter(c=>c.dec!=='c');
+ const corr=pearson(L.map(c=>c.g),L.map(c=>c.ability));
+ $('#kpis').innerHTML=[[ret.length,'retenus'],[L.filter(c=>c.dec==='c'&&c.ability>0.65).length,'bons profils écartés*'],[corr.toFixed(2),'corrélation score / capacité réelle*']].map(([v,l])=>`<div><div class="kpi">${v}</div><div class="lab">${l}</div></div>`).join('')+'<p class="lab" style="grid-column:1/-1;margin:0">* La « capacité réelle » est connue ici parce que les candidats sont simulés. Dans la vraie vie, personne ne la connaît : c\'est tout le problème.</p>';
+ fillWho();
+}
+function pearson(x,y){const n=x.length,mx=x.reduce((a,b)=>a+b)/n,my=y.reduce((a,b)=>a+b)/n;let s=0,sx=0,sy=0;for(let i=0;i<n;i++){s+=(x[i]-mx)*(y[i]-my);sx+=(x[i]-mx)**2;sy+=(y[i]-my)**2}return s/Math.sqrt(sx*sy)}
+['wC','wR','wE','wS','places'].forEach(id=>$('#'+id).oninput=()=>{renderCoh();if($('#audit').classList.contains('on'))renderAudit()});
+
+// ---------- 3. ADAPTIVE
+const MODS=['Algorithmique','HTML/CSS','SQL','Git','POO','Tests'];
+let sim=null;
+function fillWho(){const L=decide().filter(c=>c.dec!=='c');const cur=$('#who').value;$('#who').innerHTML=L.map(c=>`<option value="${c.id}">${c.nom} — ${c.dec==='a'?'Accéléré':'Standard'} (score ${c.g})</option>`).join('');if(L.some(c=>c.id==cur))$('#who').value=cur;if(!sim||!L.some(c=>c.id==sim.c.id))startSim();}
+function startSim(){
+ const id=+$('#who').value;const c=decide().find(x=>x.id===id);if(!c)return;
+ sim={c,m:0,p:clamp(c.g/100*0.8,0.1,0.9),n:0,log:[],done:[],r:rng(id*97)};
+ sim.log.push(`Départ : maîtrise estimée ${sim.p.toFixed(2)} (tirée du score de recrutement ${c.g})`);
+ renderSim();
+}
+function stepSim(){
+ if(!sim||sim.m>=MODS.length)return;
+ const s=sim;s.n++;
+ const pReal=clamp(0.3+s.c.ability*0.65+s.done.length*0.02,0,0.97);
+ const ok=s.r()<pReal;
+ // mise à jour bayésienne simple (glissement 0.1, chance 0.25)
+ const slip=0.1,guess=0.25;
+ const post=ok? s.p*(1-slip)/(s.p*(1-slip)+(1-s.p)*guess) : s.p*slip/(s.p*slip+(1-s.p)*(1-guess));
+ s.p=post+(1-post)*0.12;
+ let dec;
+ if(s.p>=0.85){dec=`→ module « ${MODS[s.m]} » validé`;s.done.push(s.m);s.m++;s.p=clamp(s.c.g/100*0.8,0.1,0.9)}
+ else if(s.p<0.6)dec='→ remédiation proposée';else dec='→ exercice du même niveau';
+ s.log.push(`#${s.n} ${MODS[Math.min(s.m,MODS.length-1)]} : ${ok?'réussi':'échoué'} · maîtrise ${post.toFixed(2)} ${dec}`);
+ renderSim();
+}
+function renderSim(){
+ const s=sim;if(!s)return;
+ $('#mods').innerHTML=MODS.map((m,i)=>`<div class="mod ${s.done.includes(i)?'done':i===s.m?'cur':''}">${m}<br><span class="lab">${s.done.includes(i)?'validé':i===s.m?'en cours':'à venir'}</span></div>`).join('');
+ $('#est').innerHTML=s.m<MODS.length?`<div class="lab">Maîtrise estimée sur « ${MODS[s.m]} »</div><div class="kpi">${s.p.toFixed(2)}</div><div class="bar"><i style="width:${s.p*100}%"></i></div><p class="lab">Seuils : remédiation &lt; 0,60 · validation ≥ 0,85<br>Exercices faits : ${s.n} · modules validés : ${s.done.length}/6</p>`:`<div class="good">Parcours terminé en ${s.n} exercices.</div>`;
+ $('#trace').innerHTML=s.log.slice().reverse().join('<br>');
+}
+$('#who').onchange=startSim;$('#step').onclick=stepSim;$('#run').onclick=()=>{for(let i=0;i<10;i++)stepSim()};$('#reset').onclick=startSim;
+
+// ---------- 4. AUDIT
+function renderAudit(){
+ const L=decide();
+ const rate=g=>{const x=L.filter(c=>c.B===g);return x.filter(c=>c.dec!=='c').length/x.length};
+ const ra=rate(false),rb=rate(true),ratio=ra?rb/ra:1;
+ const abA=avg(COH.filter(c=>!c.B).map(c=>c.ability)),abB=avg(COH.filter(c=>c.B).map(c=>c.ability));
+ $('#disp').innerHTML=`<div class="grid g3">
+ <div><div class="lab">Taux de sélection groupe A (16)</div><div class="kpi">${Math.round(ra*100)} %</div></div>
+ <div><div class="lab">Taux de sélection groupe B (8, tiers-temps)</div><div class="kpi">${Math.round(rb*100)} %</div></div>
+ <div><div class="lab">Ratio B / A</div><div class="kpi">${ratio.toFixed(2)}</div></div></div>
+ <p class="lab">Capacité réelle moyenne (simulée) : A ${abA.toFixed(2)} · B ${abB.toFixed(2)}. Bonus rapidité actuel : ${$('#wS').value} pts.</p>
+ ${ratio<0.8?`<div class="alert"><b>Impact disproportionné :</b> le ratio est sous 0,8. Le groupe B est écarté plus souvent qu'il ne le devrait au vu de sa capacité, à cause de la seule variable « temps de réponse ».</div>`:`<div class="good">Ratio ≥ 0,8 avec ce réglage. Vérifiez qu'il tient quand vous changez le nombre de places : un seuil d'équité qui casse au moindre réglage n'est pas une garantie.</div>`}`;
+}
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+$('#fixSpeed').onclick=()=>{$('#wS').value=0;renderCoh();renderAudit()};
+
+renderCoh();
+</script>
+</body>
+</html>
